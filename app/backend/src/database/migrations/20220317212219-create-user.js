@@ -7,10 +7,22 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
-      username: Sequelize.DataTypes.STRING,
-      role: Sequelize.DataTypes.STRING,
-      email: Sequelize.DataTypes.STRING,
-      password: Sequelize.DataTypes.STRING,
+      username: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+      },
+      role: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+      },
+      password: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+      },
     })
     
   },

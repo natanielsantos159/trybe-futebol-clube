@@ -4,25 +4,31 @@ module.exports = {
       id: {
         type: Sequelize.DataTypes.INTEGER,
         autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
       },
       home_team: {
         type: Sequelize.DataTypes.STRING,
-        references: {
-          model: Clubs,
-          key: 'id',
-        },
+        foreignKey: true,
+        allowNull: false,
       },
-      home_team_goals: Sequelize.DataTypes.STRING,
+      home_team_goals: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+      },
       away_team: {
         type: Sequelize.DataTypes.STRING,
-        references: {
-          model: Clubs,
-          key: 'id',
-        },
+        foreignKey: true,
+        allowNull: false,
+      },
+      away_team_goals: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
       },
       in_progress: {
         type: Sequelize.DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
+        allowNull: false,
       }
     })
   },
