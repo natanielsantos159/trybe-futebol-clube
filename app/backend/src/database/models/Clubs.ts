@@ -10,6 +10,7 @@ Clubs.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
+    primaryKey: true,
   },
   club_name: {
     type: DataTypes.STRING,

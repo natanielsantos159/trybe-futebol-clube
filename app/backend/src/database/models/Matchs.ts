@@ -4,10 +4,10 @@ import Clubs from './Clubs';
 
 class Matchs extends Model {
   public id: number;
-  public home_team: string;
-  public home_team_goals: string;
-  public away_team: string;
-  public away_team_goals: string;
+  public home_team: number;
+  public home_team_goals: number;
+  public away_team: number;
+  public away_team_goals: number;
   public in_progress: boolean;
 }
 
@@ -15,22 +15,24 @@ Matchs.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
+    primaryKey: true,
   },
   home_team: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     references: {
       model: Clubs,
       key: 'id',
     },
   },
-  home_team_goals: DataTypes.STRING,
+  home_team_goals: DataTypes.INTEGER,
   away_team: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     references: {
       model: Clubs,
       key: 'id',
     },
   },
+  away_team_goals: DataTypes.INTEGER,
   in_progress: DataTypes.TINYINT,
 }, {
   underscored: true,

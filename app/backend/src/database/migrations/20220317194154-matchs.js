@@ -8,21 +8,21 @@ module.exports = {
         allowNull: false,
       },
       home_team: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.INTEGER,
         foreignKey: true,
         allowNull: false,
       },
       home_team_goals: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.INTEGER,
         allowNull: false,
       },
       away_team: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.INTEGER,
         foreignKey: true,
         allowNull: false,
       },
       away_team_goals: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.INTEGER,
         allowNull: false,
       },
       in_progress: {
