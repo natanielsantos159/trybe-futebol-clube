@@ -3,7 +3,7 @@ import db from '.';
 import Matchs from './Matchs';
 
 class Clubs extends Model {
-  public name: string;
+  public club_name: string;
 }
 
 Clubs.init({
@@ -11,7 +11,7 @@ Clubs.init({
     type: DataTypes.INTEGER,
     autoIncrement: true,
   },
-  name: {
+  club_name: {
     type: DataTypes.STRING,
     allowNull: false,
   }
