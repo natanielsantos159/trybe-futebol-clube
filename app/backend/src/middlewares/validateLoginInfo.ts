@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import * as Joi from 'joi';
 
 const schema = Joi.object({
@@ -6,7 +6,7 @@ const schema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
-const validateLoginInfo = (res: Response, req: Request, next: NextFunction) => {
+const validateLoginInfo = (req: Request, res: Response, next: NextFunction) => {
   const userInfo = req.body;
 
   const { error } = schema.validate(userInfo);
