@@ -22,7 +22,7 @@ describe('Testa a rota /login', () => {
        .send({ email: 'test@example.com', password: 'test1234'})
 
     expect(chaiHttpResponse.status).equal(404);
-    expect(chaiHttpResponse.error).equal('User not found');
+    expect(chaiHttpResponse.error).equal('Incorrect email or password');
   });
 
   it('Seu sub-teste', () => {
