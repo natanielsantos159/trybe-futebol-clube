@@ -6,4 +6,6 @@ const login = express.Router();
 
 login.post('/', validateLoginInfo, loginController.login);
 
+login.get('/validate', loginController.validate)
+
 export default login;
