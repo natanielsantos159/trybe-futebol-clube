@@ -2,8 +2,12 @@ import { NextFunction, Request, Response } from "express"
 import * as Joi from 'joi';
 
 const schema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
+  email: Joi.string().email().required().messages({
+    'any.required': 'All fields must be filled'
+  }),
+  password: Joi.string().min(6).required().messages({
+    'any.required': 'All fields must be filled'
+  }),
 });
 
 const validateLoginInfo = (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +15,7 @@ const validateLoginInfo = (req: Request, res: Response, next: NextFunction) => {
 
   const { error } = schema.validate(userInfo);
 
-  if (error) return res.status(400).json({ error: error.message })
+  if (error) return res.status(400).json({ message: error.message })
 
   next();
 }
