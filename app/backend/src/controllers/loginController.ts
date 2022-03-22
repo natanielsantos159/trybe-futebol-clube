@@ -4,13 +4,12 @@ import * as fs from 'fs';
 import userService from "../services/userService";
 import IUser from "../interfaces/IUser";
 import UserLoginInfo from "../interfaces/UserLoginInfo";
-import * as path from 'path';
-
+require('dotenv').config();
 
 const login = async (req: Request, res: Response) => {
   const userInfo = req.body;
 
-  const secret = fs.readFileSync('../../jwt.evaluation.key', { encoding: 'utf8' });
+  const secret = fs.readFileSync(process.env.JWT_SECRET_PATH as string).toString();
   const token = jwt.sign(userInfo, secret);
 
   try { 
@@ -26,7 +25,7 @@ const validate = async (req: Request, res: Response) => {
 
   if (!header || !header.authorization) return res.status(401).json({ message: 'Invalid token' })
 
-  const secret = fs.readFileSync('../../jwt.evaluation.key', { encoding: 'utf8' });
+  const secret = fs.readFileSync(process.env.JWT_SECRET_PATH as string).toString();
 
   let userInfo;
   try { 
