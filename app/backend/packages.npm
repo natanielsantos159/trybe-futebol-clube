@@ -1,3 +1,4 @@
 jsonwebtoken
 joi
 bcryptjs
+@types/bcryptjs

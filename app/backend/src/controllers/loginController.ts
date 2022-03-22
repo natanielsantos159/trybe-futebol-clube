@@ -4,17 +4,21 @@ import * as fs from 'fs';
 import userService from "../services/userService";
 import IUser from "../interfaces/IUser";
 import UserLoginInfo from "../interfaces/UserLoginInfo";
+import * as path from 'path';
+
 
 const login = async (req: Request, res: Response) => {
   const userInfo = req.body;
 
-  const user: IUser | null = await userService.getUser(userInfo);
-
-  if (!user) return res.status(401).json({ message: "Incorrect email or password" });
-
   const secret = fs.readFileSync('../../jwt.evaluation.key', { encoding: 'utf8' });
   const token = jwt.sign(userInfo, secret);
-  return res.status(200).json({ token, user });
+
+  try { 
+    const user: IUser = await userService.getUser(userInfo);
+    return res.status(200).json({ token, user });
+  } catch(err: Error | unknown) {
+    if(err instanceof Error) return res.status(401).json({ message: err.message });
+  }
 }
 
 const validate = async (req: Request, res: Response) => {
@@ -31,8 +35,12 @@ const validate = async (req: Request, res: Response) => {
     return res.status(401).json({ message: 'Invalid token' })
   }
 
-  const user = await userService.getUser(userInfo as UserLoginInfo);
-  if (user) return res.status(200).send(user.role);
+  try {
+    const user = await userService.getUser(userInfo as UserLoginInfo);
+    return res.status(200).send(user.role);
+  } catch(err: Error | unknown) {
+    if(err instanceof Error) return res.status(401).json({ message: err.message });
+  }
 }
 
 export default {
