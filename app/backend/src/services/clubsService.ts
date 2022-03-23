@@ -6,4 +6,13 @@ const getAll = async () => {
   return allClubs;
 }
 
-export default { getAll };
+
+const getById = async (id: number) => {
+  const foundClub: IClubModel | null = await Clubs.findOne({ where: { id } });
+  return foundClub;
+}
+
+export default {
+  getAll,
+  getById
+};
