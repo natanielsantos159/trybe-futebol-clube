@@ -7,4 +7,14 @@ const getAll = async (_req: Request, res: Response) => {
   return res.status(200).json(allClubs);
 }
 
-export default { getAll }
+const getById = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const foundClub = await clubsService.getById(+id);
+  if (foundClub) return res.status(200).json(foundClub);
+  return res.status(404).json({ message: 'Club not found' })
+}
+
+export default {
+  getAll,
+  getById
+}
