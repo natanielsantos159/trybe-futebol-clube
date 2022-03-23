@@ -5,9 +5,9 @@ const getSecret = (): string => {
   const secret: string = fs.readFileSync(process.env.JWT_SECRET_PATH as string, { encoding: 'utf-8' });
   return secret;
 }
+
 const getNewToken = (payload: jwt.JwtPayload): string => {
   const secret = getSecret();
-  console.log({ secret });
   const token = jwt.sign(payload, secret);
   return token
 };
