@@ -7,6 +7,7 @@ const getAll = async () => {
     const awayTeam = await match.getAwayClub();
     return {
       ...match.dataValues,
+      inProgress: Boolean(match.dataValues.inProgress),
       homeClub: { clubName: homeTeam.dataValues.clubName },
       awayClub: { clubName: awayTeam.dataValues.clubName }
     }
