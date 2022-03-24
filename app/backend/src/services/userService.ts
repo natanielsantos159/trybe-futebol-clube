@@ -20,6 +20,18 @@ const getUser = async ({ email, password }: UserLoginInfo): Promise<IUser> => {
   return { email, id, role, username };
 }
 
+const userExists = async ({ email, password }: { email: string, password?: string }): Promise<boolean> => {
+  const foundUser = await Users.findOne({ where: { email } });
+  if (!foundUser) return false;
+
+  if (password) {
+    return checkPassword(password, foundUser.password);
+  }
+
+  return true;
+}
+
 export default {
   getUser,
+  userExists,
 }
