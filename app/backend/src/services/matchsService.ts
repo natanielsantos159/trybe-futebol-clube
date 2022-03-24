@@ -1,5 +1,6 @@
 import { IMatch } from "../interfaces/IMatch";
 import Matchs from "../database/models/Matchs";
+import clubsService from "./clubsService";
 
 const getAll = async () => {
   const allMatchs = await Matchs.findAll();
@@ -23,9 +24,13 @@ const getById = async (id: number) => {
 }
 
 const create = async (matchInfo: IMatch) => {
-  if (matchInfo.awayTeam === matchInfo.homeTeam) {
+  const { awayTeam, homeTeam } = matchInfo;
+  if (awayTeam === homeTeam) {
     throw Error("It is not possible to create a match with two equal teams")
   }
+
+  const bothExists = await clubsService.clubExists(awayTeam) && await clubsService.clubExists(homeTeam)
+  if (!bothExists) throw new Error("There is no team with such id!")
 
   const createdMatch = await Matchs.create(matchInfo);
   return { ...matchInfo, id: createdMatch.id };
