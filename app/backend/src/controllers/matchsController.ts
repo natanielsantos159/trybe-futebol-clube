@@ -13,6 +13,18 @@ const getAll = async (req: Request, res: Response) => {
   return res.status(200).json(allMatchs)
 }
 
+const create = async (req: Request, res: Response) => {
+  const matchInfo: IMatch = req.body;
+
+  try {
+    const createdMatch = await matchsService.create(matchInfo);
+    return res.status(201).json(createdMatch);
+  } catch (err: Error | unknown) {
+    if (err instanceof Error) return res.status(401).json({ message: err.message })
+  }
+}
+
 export default {
   getAll,
+  create,
 }
