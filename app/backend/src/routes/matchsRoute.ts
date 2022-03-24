@@ -9,6 +9,6 @@ matchs.get('/', matchsController.getAll);
 
 matchs.post('/', validateMatchInfo, validateJWT, matchsController.create);
 
-matchs.patch('/matchs/:id/finish', validateJWT, matchsController.finish);
+matchs.patch('/:id/finish', validateJWT, matchsController.finish);
 
 export default matchs;

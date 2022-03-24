@@ -16,12 +16,24 @@ const getAll = async () => {
   return matchsMapped;
 }
 
+const getById = async (id: number) => {
+  const foundMatch = await Matchs.findByPk(id);
+  if (foundMatch) return foundMatch.dataValues;
+  else throw Error("Match doesn't exist.");
+}
+
 const create = async (matchInfo: IMatch) => {
   const createdMatch = await Matchs.create(matchInfo);
   return { ...matchInfo, id: createdMatch.id };
 }
 
+const finish = async (id: number) => {
+  await Matchs.update({ inProgress: false }, { where: { id } });
+}
+
 export default {
   getAll,
   create,
+  finish,
+  getById,
 }
