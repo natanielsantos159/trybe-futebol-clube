@@ -12,7 +12,13 @@ const getById = async (id: number) => {
   return foundClub;
 }
 
+const clubExists = async (id: number) => {
+  const foundClub: IClubModel | null = await Clubs.findOne({ where: { id } });
+  if (foundClub) return true; else return false;
+}
+
 export default {
   getAll,
-  getById
+  getById,
+  clubExists,
 };
