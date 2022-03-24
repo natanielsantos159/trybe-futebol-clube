@@ -18,19 +18,9 @@ const login = async (req: Request, res: Response) => {
 }
 
 const validate = async (req: Request, res: Response) => {
-  const header = req.headers;
-
-  if (!header || !header.authorization) return res.status(401).json({ message: 'Invalid token' })
-
-  let userInfo;
-  try {
-    userInfo = jwtHelper.verifyToken(header.authorization)
-  } catch (err: Error | unknown) {
-    return res.status(401).json({ message: 'Invalid token' })
-  }
 
   try {
-    const user = await userService.getUser(userInfo as UserLoginInfo);
+    const user = await userService.getUser(res.locals.payload as UserLoginInfo);
     return res.status(200).send(user.role);
   } catch (err: Error | unknown) {
     if (err instanceof Error) return res.status(401).json({ message: err.message });
