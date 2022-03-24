@@ -3,12 +3,13 @@ import db from '.';
 import Clubs from './Clubs';
 
 class Matchs extends Model {
+  [x: string]: any;
   public id: number;
-  public home_team: number;
-  public home_team_goals: number;
-  public away_team: number;
-  public away_team_goals: number;
-  public in_progress: boolean;
+  public homeTeam: number;
+  public homeTeamGoals: number;
+  public awayTeam: number;
+  public awayTeamGoals: number;
+  public inProgress: boolean;
 }
 
 Matchs.init({
@@ -17,23 +18,34 @@ Matchs.init({
     autoIncrement: true,
     primaryKey: true,
   },
-  home_team: {
+  homeTeam: {
+    field: 'home_team',
     type: DataTypes.INTEGER,
     references: {
       model: Clubs,
       key: 'id',
     },
   },
-  home_team_goals: DataTypes.INTEGER,
-  away_team: {
+  homeTeamGoals: {
+    field: 'home_team_goals',
+    type: DataTypes.INTEGER
+  },
+  awayTeam: {
+    field: 'away_team',
     type: DataTypes.INTEGER,
     references: {
       model: Clubs,
       key: 'id',
     },
   },
-  away_team_goals: DataTypes.INTEGER,
-  in_progress: DataTypes.TINYINT,
+  awayTeamGoals: {
+    field: 'away_team_goals',
+    type: DataTypes.INTEGER
+  },
+  inProgress: {
+    field: 'in_progress',
+    type: DataTypes.TINYINT
+  },
 }, {
   underscored: true,
   sequelize: db,
