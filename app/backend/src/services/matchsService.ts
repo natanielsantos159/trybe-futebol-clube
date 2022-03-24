@@ -23,6 +23,10 @@ const getById = async (id: number) => {
 }
 
 const create = async (matchInfo: IMatch) => {
+  if (matchInfo.awayTeam === matchInfo.homeTeam) {
+    throw Error("It is not possible to create a match with two equal teams")
+  }
+
   const createdMatch = await Matchs.create(matchInfo);
   return { ...matchInfo, id: createdMatch.id };
 }
