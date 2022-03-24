@@ -1,3 +1,4 @@
+import { IMatch } from "../interfaces/IMatch";
 import Matchs from "../database/models/Matchs";
 
 const getAll = async () => {
@@ -15,6 +16,12 @@ const getAll = async () => {
   return matchsMapped;
 }
 
+const create = async (matchInfo: IMatch) => {
+  const createdMatch = await Matchs.create(matchInfo);
+  return { ...matchInfo, id: createdMatch.id };
+}
+
 export default {
   getAll,
+  create,
 }
