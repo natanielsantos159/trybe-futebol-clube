@@ -4,7 +4,7 @@ import Matchs from './Matchs';
 
 class Clubs extends Model {
   public id: number;
-  public club_name: string;
+  public clubName: string;
 }
 
 Clubs.init({
@@ -24,10 +24,10 @@ Clubs.init({
   timestamps: false,
 });
 
-Clubs.hasMany(Matchs,{ foreignKey: 'home_team', as: 'homeTeam' });
-Clubs.hasMany(Matchs,{ foreignKey: 'away_team', as: 'awayTeam' });
+Clubs.hasMany(Matchs,{ foreignKey: 'homeTeam' });
+Clubs.hasMany(Matchs,{ foreignKey: 'awayTeam' });
 
-Matchs.belongsTo(Clubs, { foreignKey: 'home_team', as: 'homeTeam' });
-Matchs.belongsTo(Clubs, { foreignKey: 'away_team', as: 'awayTeam' });
+Matchs.belongsTo(Clubs, { foreignKey: 'homeTeam', as: 'homeClub' });
+Matchs.belongsTo(Clubs, { foreignKey: 'awayTeam', as: 'awayClub' });
 
 export default Clubs;
