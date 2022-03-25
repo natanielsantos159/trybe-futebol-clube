@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import matchsService from "../services/matchsService";
 import { IMatch } from "../interfaces/IMatch"
+import * as Joi from "joi";
 
 const getAll = async (req: Request, res: Response) => {
   let allMatchs = await matchsService.getAll();
@@ -31,15 +32,33 @@ const finish = async (req: Request, res: Response) => {
     const foundMatch = await matchsService.getById(+id);
     if (foundMatch) {
       await matchsService.finish(+id);
-      return res.status(200).json({ message: 'Partida finalizada'});
+      return res.status(200).json({ message: 'Partida finalizada' });
     }
   } catch (err: Error | unknown) {
     if (err instanceof Error) return res.status(401).json({ message: err.message })
   }
 }
 
+const updateResult = async (req: Request, res: Response) => {
+  const newResult = req.body;
+  const { id } = req.params;
+
+  const schema = Joi.object({
+    homeTeamGoals: Joi.number().required(),
+    awayTeamGoals: Joi.number().required(),
+  });
+
+  const { error } = schema.validate(newResult);
+  if (error) return res.status(401).json({ message: error.message });
+
+  const updatedMatch = await matchsService
+    .updateResult(+id, newResult as { homeTeamGoals: number, awayTeamGoals: number});
+  return res.status(200).json(updatedMatch);
+}
+
 export default {
   getAll,
   create,
   finish,
+  updateResult,
 }
