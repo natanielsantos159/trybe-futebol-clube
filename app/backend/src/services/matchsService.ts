@@ -40,9 +40,23 @@ const finish = async (id: number) => {
   await Matchs.update({ inProgress: false }, { where: { id } });
 }
 
+const updateResult = async (
+  id: number,
+  {
+    homeTeamGoals,
+    awayTeamGoals
+  }: {
+    homeTeamGoals: number,
+    awayTeamGoals: number
+  }) => {
+  const [_affectedRows, rows] = await Matchs.update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
+  return rows[0].dataValues as IMatch;
+}
+
 export default {
   getAll,
   create,
   finish,
   getById,
+  updateResult,
 }
