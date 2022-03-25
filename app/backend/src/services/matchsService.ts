@@ -49,8 +49,7 @@ const updateResult = async (
     homeTeamGoals: number,
     awayTeamGoals: number
   }) => {
-  const [_affectedRows, rows] = await Matchs.update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
-  return rows[0].dataValues as IMatch;
+  await Matchs.update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
 }
 
 export default {
