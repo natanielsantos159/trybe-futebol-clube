@@ -40,17 +40,8 @@ const updateResult = async (req: Request, res: Response) => {
   const newResult = req.body;
   const { id } = req.params;
 
-  const schema = Joi.object({
-    homeTeamGoals: Joi.number().required(),
-    awayTeamGoals: Joi.number().required(),
-  });
-
-  const { error } = schema.validate(newResult);
-  if (error) return res.status(401).json({ message: error.message });
-
-  const updatedMatch = await matchsService
-    .updateResult(+id, newResult as { homeTeamGoals: number, awayTeamGoals: number});
-  return res.status(200).json(updatedMatch);
+  await matchsService.updateResult(+id, newResult as { homeTeamGoals: number, awayTeamGoals: number});
+  return res.status(200).json({message: 'Match updated'});
 }
 
 export default {
