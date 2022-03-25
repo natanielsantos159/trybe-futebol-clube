@@ -31,7 +31,7 @@ const finish = async (req: Request, res: Response) => {
     const foundMatch = await matchsService.getById(+id);
     if (foundMatch) {
       await matchsService.finish(+id);
-      return res.status(200).json({...foundMatch, inProgress: false});
+      return res.status(200).json({ message: 'Partida finalizada'});
     }
   } catch (err: Error | unknown) {
     if (err instanceof Error) return res.status(401).json({ message: err.message })
