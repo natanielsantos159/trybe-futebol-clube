@@ -2,3 +2,4 @@ jsonwebtoken
 joi
 bcryptjs
 @types/bcryptjs
+cors
