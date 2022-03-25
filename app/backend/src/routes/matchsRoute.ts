@@ -11,6 +11,6 @@ matchs.post('/', validateMatchInfo, validateJWT, matchsController.create);
 
 matchs.patch('/:id', validateJWT, matchsController.updateResult);
 
-matchs.patch('/:id/finish', validateJWT, matchsController.finish);
+matchs.patch('/:id/finish', matchsController.finish);
 
 export default matchs;
