@@ -13,6 +13,9 @@ services:
       test: ["CMD", "lsof", "-t", "-i:3000"]  # Caso utilize outra porta interna para o front, altere ela aqui também
       timeout: 90s
       retries: 5
+    environment:
+      - SKIP_PREFLIGHT_CHECK=true
+      - REACT_APP_API_PORT=3001
   backend:
     build: ./backend
     ports:
