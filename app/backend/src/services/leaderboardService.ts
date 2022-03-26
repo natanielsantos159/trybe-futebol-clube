@@ -14,7 +14,6 @@ const calculateEfficiency = ({ totalGames, totalPoints }: IClubSummation): numbe
   return Number(efficiency.toFixed(2));
 }
 
-
 const handleSummation = (
   sumObj: IClubSummation,
   { goalsFavor, goalsOwn, victory, draw, lost }: ILeaderboadClub
@@ -29,6 +28,22 @@ const handleSummation = (
   if (victory) sumObj.totalVictories += 1
   if (lost) sumObj.totalLosses += 1
   return sumObj;
+}
+
+const sortByPoints = (a: IClubSummation, b: IClubSummation) => {
+  if (a.totalPoints > b.totalPoints ) return -1;
+  if (a.totalPoints < b.totalPoints ) return 1;
+  if (a.totalPoints = b.totalPoints ) {
+    if (a.totalGames > b.totalGames ) return -1;
+    if (a.totalGames < b.totalGames ) return 1;
+    if (a.goalsBalance > b.goalsBalance ) return -1;
+    if (a.goalsBalance < b.goalsBalance ) return 1;
+    if (a.goalsFavor > b.goalsFavor ) return -1;
+    if (a.goalsFavor < b.goalsFavor ) return 1;
+    if (a.goalsOwn < b.goalsFavor ) return -1;
+    if (a.goalsOwn > b.goalsFavor ) return 1;
+  }
+  return 1;
 }
 
 const getHomeData = async () => {
@@ -78,6 +93,7 @@ const getHomeData = async () => {
   }, [] as IClubSummation[]);
 
   clubLeaderboard.forEach((obj) => delete obj.id)
+  clubLeaderboard.sort(sortByPoints);
   return clubLeaderboard;
 };
 
