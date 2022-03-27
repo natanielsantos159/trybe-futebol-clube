@@ -53,43 +53,48 @@ const getClubsMatchByType = async (type: 'Home' | 'Away', match: Matchs) => {
   };
 }
 
+const reduceLeaderboard = (
+    leaderboardArray: IClubSummation[],
+    match: ILeaderboadMatch,
+    homeClubMatchs: ILeaderboadMatch[]
+  ) => {
+  const filterById = (curr: { id?: number }) => match.id === curr.id;
+
+  const alreadySummed = leaderboardArray.length > 0 && leaderboardArray.some(filterById);
+  if (alreadySummed) return leaderboardArray;
+
+  const initialSummationValue: IClubSummation = {
+    id: match.id,
+    name: match.name,
+    goalsFavor: 0,
+    goalsOwn: 0,
+    goalsBalance: 0,
+    totalDraws: 0,
+    totalVictories: 0,
+    totalLosses: 0,
+    totalPoints: 0,
+    totalGames: 0,
+  }
+
+  let summationObj = homeClubMatchs
+    .filter(filterById)
+    .reduce(handleSummation, initialSummationValue);
+
+  summationObj.totalPoints = (3 * summationObj.totalVictories) + summationObj.totalDraws
+  summationObj.efficiency = calculateEfficiency(summationObj);
+
+  leaderboardArray.push(summationObj);
+  return leaderboardArray;
+}
+
 const getHomeTeamLeaderboard = async () => {
   const matchs = await Matchs.findAll({ where: { inProgress: false } });
 
-  const homeClubsMatchs: ILeaderboadMatch[] = await Promise.all(matchs.map(async (match) => {
-    const clubsMatch = await getClubsMatchByType('Home', match);
-    return clubsMatch;
-  }))
+  const promisesClubMatchs = matchs.map((match) => getClubsMatchByType('Home', match))
+  const homeClubMatchs: ILeaderboadMatch[] = await Promise.all(promisesClubMatchs);
 
-  const homeLeaderboard = homeClubsMatchs.reduce((acc, match) => {
-    const filterByHomeId = (curr: { id?: number }) => match.id === curr.id;
-
-    const alreadySummed = acc.length > 0 && acc.some(filterByHomeId);
-    if (alreadySummed) return acc;
-
-    const initialSummationValue: IClubSummation = {
-      id: match.id,
-      name: match.name,
-      goalsFavor: 0,
-      goalsOwn: 0,
-      goalsBalance: 0,
-      totalDraws: 0,
-      totalVictories: 0,
-      totalLosses: 0,
-      totalPoints: 0,
-      totalGames: 0,
-    }
-
-    let summationObj = homeClubsMatchs
-      .filter(filterByHomeId)
-      .reduce(handleSummation, initialSummationValue);
-
-    summationObj.totalPoints = (3 * summationObj.totalVictories) + summationObj.totalDraws
-    summationObj.efficiency = calculateEfficiency(summationObj);
-
-
-    acc.push(summationObj);
-    return acc;
+  const homeLeaderboard = homeClubMatchs.reduce((leaderboardArray, currentMatch) => {
+    return reduceLeaderboard(leaderboardArray, currentMatch, homeClubMatchs)
   }, [] as IClubSummation[]);
 
   homeLeaderboard.forEach((obj) => { delete obj.id; });
