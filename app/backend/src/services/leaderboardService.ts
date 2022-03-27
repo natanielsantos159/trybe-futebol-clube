@@ -1,6 +1,8 @@
 import { IClub, IClubSummation } from "../interfaces/IClub";
 import Matchs from "../database/models/Matchs";
-import { ILeaderboadMatch } from "../interfaces/IMatch";
+import { IClubsMatch } from "../interfaces/IMatch";
+
+type LeaderboarFilterType = 'home' | 'away' | 'both';
 
 const calculateEfficiency = ({ totalGames, totalPoints }: IClubSummation): number => {
   const efficiency = totalPoints / (totalGames * 3) * 100;
@@ -9,15 +11,24 @@ const calculateEfficiency = ({ totalGames, totalPoints }: IClubSummation): numbe
 
 const handleSummation = (
   sumObj: IClubSummation,
-  { goalsFavor, goalsOwn, victory, draw, lost }: ILeaderboadMatch
+  match: IClubsMatch,
+  type: LeaderboarFilterType
 ): IClubSummation => {
-  sumObj.goalsFavor += goalsFavor
-  sumObj.goalsOwn += goalsOwn
-  sumObj.goalsBalance = sumObj.goalsBalance + (goalsFavor - goalsOwn)
+  const currentlyHomeOrAway = sumObj.id === match.homeTeamId ? 'home' : 'away';
+  const currentType = type === 'both' ? currentlyHomeOrAway : type;
+  const adversary = currentType === 'home' ? 'away' : 'home';
+
+  const currGoalsFavor = match[`${currentType}TeamGoals`];
+  const currGoalsOwn = match[`${adversary}TeamGoals`];
+
+  sumObj.goalsFavor += currGoalsFavor
+  sumObj.goalsOwn += currGoalsOwn
+  sumObj.goalsBalance = sumObj.goalsBalance + (currGoalsFavor - currGoalsOwn)
   sumObj.totalGames += 1;
-  if (draw) sumObj.totalDraws += 1;
-  if (victory) sumObj.totalVictories += 1
-  if (lost) sumObj.totalLosses += 1
+
+  if (currGoalsFavor === currGoalsOwn) sumObj.totalDraws += 1;
+  if (currGoalsFavor > currGoalsOwn) sumObj.totalVictories += 1
+  if (currGoalsFavor < currGoalsOwn) sumObj.totalLosses += 1
   return sumObj;
 }
 
@@ -40,35 +51,43 @@ const sortByPoints = (a: IClubSummation, b: IClubSummation) => {
   return 0;
 }
 
-const getClubsMatchByType = async (type: 'Home' | 'Away', match: Matchs): Promise<ILeaderboadMatch> => {
-  const { clubName: name } = type === 'Home' ? await match.getHomeClub() : await match.getAwayClub();
+const getClubsMatch = async (match: Matchs): Promise<IClubsMatch> => {
+  const { clubName: homeTeamName } = await match.getHomeClub();
+  const { clubName: awayTeamName } = await match.getAwayClub();
   const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = match.dataValues;
-  const goalsFirstTeam = type === 'Home' ? homeTeamGoals : awayTeamGoals;
-  const goalsSecondTeam = type === 'Home' ? awayTeamGoals : homeTeamGoals
   return {
-    name,
-    id: type === 'Home' ? homeTeam : awayTeam,
-    goalsFavor: goalsFirstTeam,
-    goalsOwn: goalsSecondTeam,
-    victory: goalsFirstTeam > goalsSecondTeam,
-    lost: goalsFirstTeam < goalsSecondTeam,
-    draw: goalsFirstTeam === goalsSecondTeam,
+    homeTeamName,
+    awayTeamName,
+    homeTeamId: homeTeam,
+    awayTeamId: awayTeam,
+    homeTeamGoals,
+    awayTeamGoals,
   };
 }
 
 const reduceLeaderboard = (
-    leaderboardArray: IClubSummation[],
-    match: ILeaderboadMatch,
-    homeClubMatchs: ILeaderboadMatch[]
-  ) => {
-  const filterById = (curr: { id?: number }) => match.id === curr.id;
+  leaderboardArray: IClubSummation[],
+  match: IClubsMatch,
+  clubMatchs: IClubsMatch[],
+  type: LeaderboarFilterType,
+) => {
+  const filterById = (curr: { id?: number, homeTeamId?: number, awayTeamId?: number }) => {
+    switch (type) {
+      case 'home':
+      case 'away':
+        return match[`${type}TeamId`] === (curr.id || curr[`${type}TeamId`]);
+      case 'both':
+        return match.homeTeamId === curr.awayTeamId || match.homeTeamId === curr.homeTeamId || match.homeTeamId === curr.id;
+    }
+  };
 
   const alreadySummed = leaderboardArray.length > 0 && leaderboardArray.some(filterById);
   if (alreadySummed) return leaderboardArray;
 
+  const hasType = type !== 'both';
   const initialSummationValue: IClubSummation = {
-    id: match.id,
-    name: match.name,
+    id: hasType ? match[`${type}TeamId`] : match.homeTeamId,
+    name: hasType ? match[`${type}TeamName`] : match.homeTeamName,
     goalsFavor: 0,
     goalsOwn: 0,
     goalsBalance: 0,
@@ -79,9 +98,9 @@ const reduceLeaderboard = (
     totalGames: 0,
   }
 
-  let summationObj = homeClubMatchs
+  let summationObj = clubMatchs
     .filter(filterById)
-    .reduce(handleSummation, initialSummationValue);
+    .reduce((sumObj, currMatch) => handleSummation(sumObj, currMatch, type), initialSummationValue);
 
   summationObj.totalPoints = (3 * summationObj.totalVictories) + summationObj.totalDraws
   summationObj.efficiency = calculateEfficiency(summationObj);
@@ -90,37 +109,21 @@ const reduceLeaderboard = (
   return leaderboardArray;
 }
 
-const getHomeTeamLeaderboard = async () => {
+const getLeaderboard = async ({ type }: { type: LeaderboarFilterType }) => {
   const matchs = await Matchs.findAll({ where: { inProgress: false } });
 
-  const promisesClubMatchs = matchs.map((match) => getClubsMatchByType('Home', match))
-  const homeClubMatchs: ILeaderboadMatch[] = await Promise.all(promisesClubMatchs);
+  const clubMatchs = await Promise.all(
+    matchs.map((match) => getClubsMatch(match)));
 
-  const homeLeaderboard = homeClubMatchs.reduce((leaderboardArray, currentMatch) => {
-    return reduceLeaderboard(leaderboardArray, currentMatch, homeClubMatchs)
+  const leaderboard = clubMatchs.reduce((leaderboardArray, currentMatch) => {
+    return reduceLeaderboard(leaderboardArray, currentMatch, clubMatchs, type)
   }, [] as IClubSummation[]);
 
-  homeLeaderboard.forEach((obj) => { delete obj.id; });
-  homeLeaderboard.sort(sortByPoints);
-  return homeLeaderboard;
+  leaderboard.forEach((obj) => { delete obj.id; });
+  leaderboard.sort(sortByPoints);
+  return leaderboard;
 };
 
-const getAwayTeamLeaderboard = async () => {
-  const matchs = await Matchs.findAll({ where: { inProgress: false } });
-
-  const promisesClubMatchs = matchs.map((match) => getClubsMatchByType('Away', match))
-  const awayClubMatchs: ILeaderboadMatch[] = await Promise.all(promisesClubMatchs);
-
-  const awayLeaderboard = awayClubMatchs.reduce((leaderboardArray, currentMatch) => {
-    return reduceLeaderboard(leaderboardArray, currentMatch, awayClubMatchs)
-  }, [] as IClubSummation[]);
-
-  awayLeaderboard.forEach((obj) => { delete obj.id; });
-  awayLeaderboard.sort(sortByPoints);
-  return awayLeaderboard;
-}
-
 export default {
-  getHomeTeamLeaderboard,
-  getAwayTeamLeaderboard,
+  getLeaderboard,
 }
