@@ -22,22 +22,25 @@ const handleSummation = (
 }
 
 const sortByPoints = (a: IClubSummation, b: IClubSummation) => {
-  if (a.totalPoints > b.totalPoints) return -1;
-  if (a.totalPoints < b.totalPoints) return 1;
-  if (a.totalPoints = b.totalPoints) {
-    if (a.totalVictories > b.totalVictories) return -1;
-    if (a.totalVictories < b.totalVictories) return 1;
-    if (a.goalsBalance > b.goalsBalance) return -1;
-    if (a.goalsBalance < b.goalsBalance) return 1;
-    if (a.goalsOwn > b.goalsOwn) return -1;
-    if (a.goalsOwn < b.goalsOwn) return 1;
-    if (a.goalsFavor > b.goalsFavor) return -1;
-    if (a.goalsFavor < b.goalsFavor) return 1;
+  if (a.totalPoints !== b.totalPoints) {
+    return b.totalPoints - a.totalPoints;
   }
-  return 1;
+  if (a.totalVictories !== b.totalVictories) {
+    return b.totalVictories - a.totalVictories
+  }
+  if (a.goalsBalance !== b.goalsBalance) {
+    return b.goalsBalance - a.goalsBalance
+  }
+  if (a.goalsFavor !== b.goalsFavor) {
+    return b.goalsFavor - a.goalsFavor
+  }
+  if (a.goalsOwn !== b.goalsOwn) {
+    return b.goalsOwn - a.goalsOwn
+  }
+  return 0;
 }
 
-const getClubsMatchByType = async (type: 'Home' | 'Away', match: Matchs) => {
+const getClubsMatchByType = async (type: 'Home' | 'Away', match: Matchs): Promise<ILeaderboadMatch> => {
   const { clubName: name } = type === 'Home' ? await match.getHomeClub() : await match.getAwayClub();
   const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = match.dataValues;
   const goalsFirstTeam = type === 'Home' ? homeTeamGoals : awayTeamGoals;
