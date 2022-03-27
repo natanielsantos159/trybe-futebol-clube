@@ -1,6 +1,6 @@
-import { IClubSummation } from "../interfaces/IClub";
+import { IClub, IClubSummation } from "../interfaces/IClub";
 import Matchs from "../database/models/Matchs";
-import {ILeaderboadMatch} from "../interfaces/IMatch";
+import { ILeaderboadMatch } from "../interfaces/IMatch";
 
 const calculateEfficiency = ({ totalGames, totalPoints }: IClubSummation): number => {
   const efficiency = totalPoints / (totalGames * 3) * 100;
@@ -37,21 +37,28 @@ const sortByPoints = (a: IClubSummation, b: IClubSummation) => {
   return 1;
 }
 
+const getClubsMatchByType = async (type: 'Home' | 'Away', match: Matchs) => {
+  const { clubName: name } = type === 'Home' ? await match.getHomeClub() : await match.getAwayClub();
+  const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = match.dataValues;
+  const goalsFirstTeam = type === 'Home' ? homeTeamGoals : awayTeamGoals;
+  const goalsSecondTeam = type === 'Home' ? awayTeamGoals : homeTeamGoals
+  return {
+    name,
+    id: type === 'Home' ? homeTeam : awayTeam,
+    goalsFavor: goalsFirstTeam,
+    goalsOwn: goalsSecondTeam,
+    victory: goalsFirstTeam > goalsSecondTeam,
+    lost: goalsFirstTeam < goalsSecondTeam,
+    draw: goalsFirstTeam === goalsSecondTeam,
+  };
+}
+
 const getHomeTeamLeaderboard = async () => {
   const matchs = await Matchs.findAll({ where: { inProgress: false } });
 
   const homeClubsMatchs: ILeaderboadMatch[] = await Promise.all(matchs.map(async (match) => {
-    const { clubName: name } = await match.getHomeClub();
-    const { homeTeam, homeTeamGoals, awayTeamGoals } = match.dataValues;
-    return {
-      name,
-      id: homeTeam,
-      goalsFavor: homeTeamGoals,
-      goalsOwn: awayTeamGoals,
-      victory: homeTeamGoals > awayTeamGoals,
-      lost: homeTeamGoals < awayTeamGoals,
-      draw: homeTeamGoals === awayTeamGoals,
-    };
+    const clubsMatch = await getClubsMatchByType('Home', match);
+    return clubsMatch;
   }))
 
   const homeLeaderboard = homeClubsMatchs.reduce((acc, match) => {
