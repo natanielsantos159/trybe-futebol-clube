@@ -37,7 +37,7 @@ const sortByPoints = (a: IClubSummation, b: IClubSummation) => {
   return 1;
 }
 
-const getHomeData = async () => {
+const getHomeTeamLeaderboard = async () => {
   const matchs = await Matchs.findAll({ where: { inProgress: false } });
 
   const homeClubsMatchs: ILeaderboadMatch[] = await Promise.all(matchs.map(async (match) => {
@@ -91,5 +91,5 @@ const getHomeData = async () => {
 };
 
 export default {
-  getHomeData,
+  getHomeTeamLeaderboard,
 }
