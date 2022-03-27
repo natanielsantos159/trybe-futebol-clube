@@ -19,8 +19,8 @@ export interface IMatchModel extends Model {
   awayTeam: number;
   awayTeamGoals: number;
   inProgress: boolean;
-  getHomeTeam(): IClub;
-  getAwayTeam(): IClub;
+  getHomeClub(): IClub;
+  getAwayClub(): IClub;
 }
 
 export interface IMatchModelMock {
@@ -30,8 +30,8 @@ export interface IMatchModelMock {
   awayTeam: number;
   awayTeamGoals: number;
   inProgress: boolean;
-  getHomeTeam(): IClub;
-  getAwayTeam(): IClub;
+  getHomeClub(): IClub;
+  getAwayClub(): IClub;
 }
 
 export interface ILeaderboadMatch {
