@@ -102,6 +102,22 @@ const getHomeTeamLeaderboard = async () => {
   return homeLeaderboard;
 };
 
+const getAwayTeamLeaderboard = async () => {
+  const matchs = await Matchs.findAll({ where: { inProgress: false } });
+
+  const promisesClubMatchs = matchs.map((match) => getClubsMatchByType('Away', match))
+  const awayClubMatchs: ILeaderboadMatch[] = await Promise.all(promisesClubMatchs);
+
+  const awayLeaderboard = awayClubMatchs.reduce((leaderboardArray, currentMatch) => {
+    return reduceLeaderboard(leaderboardArray, currentMatch, awayClubMatchs)
+  }, [] as IClubSummation[]);
+
+  awayLeaderboard.forEach((obj) => { delete obj.id; });
+  awayLeaderboard.sort(sortByPoints);
+  return awayLeaderboard;
+}
+
 export default {
   getHomeTeamLeaderboard,
+  getAwayTeamLeaderboard,
 }
