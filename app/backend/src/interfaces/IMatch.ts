@@ -34,3 +34,12 @@ export interface IMatchModelMock {
   getAwayTeam(): IClub;
 }
 
+export interface ILeaderboadMatch {
+  id: number;
+  name: string;
+  goalsFavor: number;
+  goalsOwn: number;
+  victory: boolean;
+  draw: boolean;
+  lost: boolean;
+}
