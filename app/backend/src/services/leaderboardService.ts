@@ -1,13 +1,6 @@
 import { IClubSummation } from "../interfaces/IClub";
 import Matchs from "../database/models/Matchs";
-import ILeaderboadClub from "../interfaces/ILeaderboadClub";
-
-const getPoints = ({ victory, draw, lost }: { victory: boolean, draw: boolean, lost: boolean }): number => {
-  if (victory) return 3;
-  if (draw) return 1;
-  if (lost) return 0;
-  return 0;
-};
+import {ILeaderboadMatch} from "../interfaces/IMatch";
 
 const calculateEfficiency = ({ totalGames, totalPoints }: IClubSummation): number => {
   const efficiency = totalPoints / (totalGames * 3) * 100;
@@ -16,40 +9,38 @@ const calculateEfficiency = ({ totalGames, totalPoints }: IClubSummation): numbe
 
 const handleSummation = (
   sumObj: IClubSummation,
-  { goalsFavor, goalsOwn, victory, draw, lost }: ILeaderboadClub
+  { goalsFavor, goalsOwn, victory, draw, lost }: ILeaderboadMatch
 ): IClubSummation => {
-  const points = getPoints({ victory, draw, lost })
-  sumObj.totalPoints += points;
   sumObj.goalsFavor += goalsFavor
   sumObj.goalsOwn += goalsOwn
   sumObj.goalsBalance = sumObj.goalsBalance + (goalsFavor - goalsOwn)
   sumObj.totalGames += 1;
-  if (draw) sumObj.totalDraws += 1
+  if (draw) sumObj.totalDraws += 1;
   if (victory) sumObj.totalVictories += 1
   if (lost) sumObj.totalLosses += 1
   return sumObj;
 }
 
 const sortByPoints = (a: IClubSummation, b: IClubSummation) => {
-  if (a.totalPoints > b.totalPoints ) return -1;
-  if (a.totalPoints < b.totalPoints ) return 1;
-  if (a.totalPoints = b.totalPoints ) {
-    if (a.totalGames > b.totalGames ) return -1;
-    if (a.totalGames < b.totalGames ) return 1;
-    if (a.goalsBalance > b.goalsBalance ) return -1;
-    if (a.goalsBalance < b.goalsBalance ) return 1;
-    if (a.goalsFavor > b.goalsFavor ) return -1;
-    if (a.goalsFavor < b.goalsFavor ) return 1;
-    if (a.goalsOwn < b.goalsFavor ) return -1;
-    if (a.goalsOwn > b.goalsFavor ) return 1;
+  if (a.totalPoints > b.totalPoints) return -1;
+  if (a.totalPoints < b.totalPoints) return 1;
+  if (a.totalPoints = b.totalPoints) {
+    if (a.totalVictories > b.totalVictories) return -1;
+    if (a.totalVictories < b.totalVictories) return 1;
+    if (a.goalsBalance > b.goalsBalance) return -1;
+    if (a.goalsBalance < b.goalsBalance) return 1;
+    if (a.goalsOwn > b.goalsOwn) return -1;
+    if (a.goalsOwn < b.goalsOwn) return 1;
+    if (a.goalsFavor > b.goalsFavor) return -1;
+    if (a.goalsFavor < b.goalsFavor) return 1;
   }
   return 1;
 }
 
 const getHomeData = async () => {
-  const matchs = await Matchs.findAll();
+  const matchs = await Matchs.findAll({ where: { inProgress: false } });
 
-  const homeClubsMatchs: ILeaderboadClub[] = await Promise.all(matchs.map(async (match) => {
+  const homeClubsMatchs: ILeaderboadMatch[] = await Promise.all(matchs.map(async (match) => {
     const { clubName: name } = await match.getHomeClub();
     const { homeTeam, homeTeamGoals, awayTeamGoals } = match.dataValues;
     return {
@@ -63,15 +54,15 @@ const getHomeData = async () => {
     };
   }))
 
-  const clubLeaderboard = homeClubsMatchs.reduce((acc, club) => {
-    const filterByid = (curr: { id?: number }) => club.id === curr.id;
+  const homeLeaderboard = homeClubsMatchs.reduce((acc, match) => {
+    const filterByHomeId = (curr: { id?: number }) => match.id === curr.id;
 
-    const alreadySummed = acc.length > 0 && acc.some(filterByid);
+    const alreadySummed = acc.length > 0 && acc.some(filterByHomeId);
     if (alreadySummed) return acc;
 
     const initialSummationValue: IClubSummation = {
-      id: club.id,
-      name: club.name,
+      id: match.id,
+      name: match.name,
       goalsFavor: 0,
       goalsOwn: 0,
       goalsBalance: 0,
@@ -83,18 +74,20 @@ const getHomeData = async () => {
     }
 
     let summationObj = homeClubsMatchs
-      .filter(filterByid)
+      .filter(filterByHomeId)
       .reduce(handleSummation, initialSummationValue);
 
-    const efficiency = calculateEfficiency(summationObj);
-    summationObj.efficiency = efficiency;
+    summationObj.totalPoints = (3 * summationObj.totalVictories) + summationObj.totalDraws
+    summationObj.efficiency = calculateEfficiency(summationObj);
+
+
     acc.push(summationObj);
     return acc;
   }, [] as IClubSummation[]);
 
-  clubLeaderboard.forEach((obj) => delete obj.id)
-  clubLeaderboard.sort(sortByPoints);
-  return clubLeaderboard;
+  homeLeaderboard.forEach((obj) => { delete obj.id; });
+  homeLeaderboard.sort(sortByPoints);
+  return homeLeaderboard;
 };
 
 export default {
