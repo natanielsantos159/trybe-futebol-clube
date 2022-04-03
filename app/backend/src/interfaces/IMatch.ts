@@ -14,14 +14,14 @@ export interface IMatch {
 
 export interface IMatchModel extends Model {
   dataValues: IMatch,
-  getHomeClub(): Promise<{ dataValues: IClub }>;
-  getAwayClub(): Promise<{ dataValues: IClub }>;
+  getHomeClub?(): Promise<{ dataValues: IClub }>;
+  getAwayClub?(): Promise<{ dataValues: IClub }>;
 }
 
 export interface IMatchModelMock {
   dataValues: IMatch,
-  getHomeClub(): Promise<{ dataValues: IClub }>;
-  getAwayClub(): Promise<{ dataValues: IClub }>;
+  getHomeClub?(): Promise<{ dataValues: IClub }>;
+  getAwayClub?(): Promise<{ dataValues: IClub }>;
 }
 export interface IClubsMatch {
   homeTeamName: string;

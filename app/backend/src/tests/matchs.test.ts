@@ -24,8 +24,8 @@ const allMatchsMock: IMatchModelMock[] = [
       awayTeamGoals: 0,
       inProgress: true,
     },
-    getHomeClub: async function () { return { dataValues: { id: 1, clubName: 'Avaí/Kindermann'} } },
-    getAwayClub: async function () { return { dataValues: { id: 4, clubName: 'Corinthians' }} },
+    getHomeClub: async function () { return { dataValues: { id: 1, clubName: 'Avaí/Kindermann' } } },
+    getAwayClub: async function () { return { dataValues: { id: 4, clubName: 'Corinthians' } } },
   },
   {
     dataValues: {
@@ -36,8 +36,8 @@ const allMatchsMock: IMatchModelMock[] = [
       awayTeamGoals: 0,
       inProgress: true,
     },
-    getHomeClub: async function () { return { dataValues: {id: 2, clubName: 'Bahia' } }},
-    getAwayClub: async function () { return { dataValues: {id: 3, clubName: 'Botafogo' } }},
+    getHomeClub: async function () { return { dataValues: { id: 2, clubName: 'Bahia' } } },
+    getAwayClub: async function () { return { dataValues: { id: 3, clubName: 'Botafogo' } } },
   },
   {
     dataValues: {
@@ -48,8 +48,8 @@ const allMatchsMock: IMatchModelMock[] = [
       awayTeamGoals: 0,
       inProgress: true,
     },
-    getHomeClub: async function () { return { dataValues: {id: 3, clubName: 'Botafogo' } }},
-    getAwayClub: async function () { return { dataValues: {id: 2, clubName: 'Bahia' } }},
+    getHomeClub: async function () { return { dataValues: { id: 3, clubName: 'Botafogo' } } },
+    getAwayClub: async function () { return { dataValues: { id: 2, clubName: 'Bahia' } } },
   },
   {
     dataValues: {
@@ -60,8 +60,8 @@ const allMatchsMock: IMatchModelMock[] = [
       awayTeamGoals: 2,
       inProgress: true,
     },
-    getHomeClub: async function () { return { dataValues: { id: 4, clubName: 'Corinthians' } }},
-    getAwayClub: async function () { return { dataValues: { id: 1, clubName: 'Avaí/Kindermann' } }},
+    getHomeClub: async function () { return { dataValues: { id: 4, clubName: 'Corinthians' } } },
+    getAwayClub: async function () { return { dataValues: { id: 1, clubName: 'Avaí/Kindermann' } } },
   },
 ]
 
@@ -108,7 +108,19 @@ const allMatchsExpectedResponse: IMatch[] = [
   },
 ]
 
-describe('Testa a rota /matchs', () => {
+const findByIdMock: IMatchModelMock = {
+  dataValues: {
+    id: 41,
+    homeTeam: 1,
+    homeTeamGoals: 2,
+    awayTeam: 4,
+    awayTeamGoals: 0,
+    inProgress: true,
+  }
+};
+
+
+describe('Testa a rota GET /matchs', () => {
 
   let chaiHttpResponse: Response;
 
@@ -126,5 +138,29 @@ describe('Testa a rota /matchs', () => {
 
     expect(chaiHttpResponse.status).to.be.equal(200)
     expect(chaiHttpResponse.body).to.be.deep.equal(allMatchsExpectedResponse)
+  })
+})
+
+
+describe('Testa a rota PATCH /matchs/:id/finish', () => {
+
+  let chaiHttpResponse: Response;
+
+  before(() => {
+    sinon.stub(Matchs, 'findByPk').resolves(findByIdMock as IMatchModel);
+  });
+
+  after(() => {
+    const matchsStub = Matchs.findByPk as unknown as Sinon.SinonMock
+    matchsStub.restore();
+  })
+
+  it('Testa se retorna a mensagem "Match finished." se o id for válido', async () => {
+    chaiHttpResponse = await chai
+      .request(app)
+      .patch('/matchs/41/finish');
+
+    expect(chaiHttpResponse.status).to.be.equal(200)
+    expect(chaiHttpResponse.body.message).to.be.equal("Match finished")
   })
 })
