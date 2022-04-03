@@ -30,7 +30,7 @@ const finish = async (req: Request, res: Response) => {
 
   try {
       await matchsService.finish(+id);
-      return res.status(200).json({ message: 'Partida finalizada' });
+      return res.status(200).json({ message: 'Match finished' });
   } catch (err: Error | unknown) {
     if (err instanceof Error) return res.status(401).json({ message: err.message })
   }

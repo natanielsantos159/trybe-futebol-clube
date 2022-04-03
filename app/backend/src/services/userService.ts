@@ -1,4 +1,4 @@
-import IUser from "../interfaces/IUser";
+import {IUser} from "../interfaces/IUser";
 import Users from "../database/models/Users";
 import UserLoginInfo from "../interfaces/UserLoginInfo";
 import * as bcrypt from 'bcryptjs';
@@ -34,4 +34,5 @@ const userExists = async ({ email, password }: { email: string, password?: strin
 export default {
   getUser,
   userExists,
+  checkPassword,
 }

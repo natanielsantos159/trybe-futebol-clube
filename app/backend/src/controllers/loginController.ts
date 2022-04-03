@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwtHelper from '../utils/jwtHelper';
 import userService from "../services/userService";
-import IUser from "../interfaces/IUser";
+import {IUser} from "../interfaces/IUser";
 import UserLoginInfo from "../interfaces/UserLoginInfo";
 require('dotenv').config();
 
