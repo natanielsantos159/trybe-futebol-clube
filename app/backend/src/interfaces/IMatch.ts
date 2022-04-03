@@ -13,25 +13,15 @@ export interface IMatch {
 }
 
 export interface IMatchModel extends Model {
-  id: number;
-  homeTeam: number;
-  homeTeamGoals: number;
-  awayTeam: number;
-  awayTeamGoals: number;
-  inProgress: boolean;
-  getHomeClub(): IClub;
-  getAwayClub(): IClub;
+  dataValues: IMatch,
+  getHomeClub(): Promise<{ dataValues: IClub }>;
+  getAwayClub(): Promise<{ dataValues: IClub }>;
 }
 
 export interface IMatchModelMock {
-  id: number;
-  homeTeam: number;
-  homeTeamGoals: number;
-  awayTeam: number;
-  awayTeamGoals: number;
-  inProgress: boolean;
-  getHomeClub(): IClub;
-  getAwayClub(): IClub;
+  dataValues: IMatch,
+  getHomeClub(): Promise<{ dataValues: IClub }>;
+  getAwayClub(): Promise<{ dataValues: IClub }>;
 }
 export interface IClubsMatch {
   homeTeamName: string;
