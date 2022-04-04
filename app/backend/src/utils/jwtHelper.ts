@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as jwt from 'jsonwebtoken'
 
 const getSecret = (): string => {
-  const secret: string = fs.readFileSync(process.env.JWT_SECRET_PATH as string, { encoding: 'utf-8' });
+  const secret: string = fs.readFileSync(process.env.JWT_SECRET_PATH as string || './jwt.evaluation.key', { encoding: 'utf-8' });
   return secret;
 }
 
