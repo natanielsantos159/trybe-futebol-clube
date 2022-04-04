@@ -22,12 +22,25 @@ O `TFC` é um site informativo sobre partidas e classificações de futebol! ⚽
  - Construir uma **API REST** com endpoints para consumir os models criados;
  - Fazer um `CRUD` utilizando `ORM`;
 
-## Screenshot
+## Demonstração
 
 Página de Classificação: 
 
 <img src="https://github.com/natanielsantos159/trybe-futebol-clube/blob/nataniel-santos-trybe-futebol-clube/front-example.png?raw=true" />
 
+## Variáveis de Ambiente
+
+Para rodar o backend separadamente, você vai precisar adicionar as seguintes variáveis de ambiente no seu .env
+
+`PORT`
+
+`DB_USER`
+
+`DB_PASS`
+
+`DB_HOST`
+
+`DB_PORT`
 ## Rodando localmente
 
 Clone o projeto
